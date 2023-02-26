@@ -6,7 +6,7 @@
 
 typedef uint64_t HashCode;
 
-static HashCode hash_function(struct hashtable *ht, TableKey key) {
+static HashCode hash_function(struct hashtable *ht, const char *key) {
     uint64_t hash = 1;
 
     while (*key != '\0') {
@@ -52,7 +52,7 @@ static void init(struct hashtable *ht, uint64_t max_capacity) {
     return;
 }
 
-void hashtable_new(struct hashtable *ht) {
+void hashtable_init(struct hashtable *ht) {
     init(ht, 7);
     return;
 }
@@ -62,7 +62,7 @@ void hashtable_free(struct hashtable *ht) {
     return;
 }
 
-void hashtable_insert(struct hashtable *ht, TableKey key, TableValue value) {
+void hashtable_insert(struct hashtable *ht, const char *key, void * value) {
     HashCode index = hash_function(ht, key);
     struct bucket *bucket = &ht->table[index];
 
@@ -99,10 +99,10 @@ void hashtable_insert(struct hashtable *ht, TableKey key, TableValue value) {
         *bucket = ht->table[index];
 
         while (
-                (bucket->key != (TableValue) NULL)
+                (bucket->key != (const char *) NULL)
                 | (bucket->next != (struct bucket *) NULL)
         ) {
-            if (bucket->key != (TableKey) NULL) {
+            if (bucket->key != (const char *) NULL) {
                 hashtable_insert(&new_ht, bucket->key, bucket->value);
             }
 
@@ -121,10 +121,10 @@ void hashtable_insert(struct hashtable *ht, TableKey key, TableValue value) {
     return;
 }
 
-TableValue hashtable_get(
+void * hashtable_get(
     struct hashtable *ht,
-    TableKey key,
-    TableValue _default
+    const char *key,
+    void *_default
 ) {
     HashCode index = hash_function(ht, key);
     struct bucket *bucket = &ht->table[index];
@@ -140,7 +140,7 @@ TableValue hashtable_get(
     return _default;
 }
 
-void hashtable_delete(struct hashtable *ht, TableKey key) {
+void hashtable_delete(struct hashtable *ht, const char *key) {
     HashCode index = hash_function(ht, key);
     struct bucket *bucket = &ht->table[index];
 
@@ -150,8 +150,8 @@ void hashtable_delete(struct hashtable *ht, TableKey key) {
         }
 
         if (bucket->key == key) {
-            bucket->key = (TableKey) NULL;
-            bucket->value = (TableValue) NULL;
+            bucket->key = (const char *) NULL;
+            bucket->value = (void *) NULL;
 
         if (bucket->next != (struct bucket *) NULL) {
             if (bucket->previous == bucket) {
@@ -171,12 +171,12 @@ void hashtable_delete(struct hashtable *ht, TableKey key) {
     return;
 }
 
-TableValue hashtable_pop(
+void * hashtable_pop(
     struct hashtable *ht,
-    TableKey key,
-    TableValue _default
+    const char *key,
+    void *_default
 ) {
-    TableValue value = hashtable_get(ht, key, _default);
+    void * value = hashtable_get(ht, key, _default);
     hashtable_delete(ht, key);
 
     return value;
