@@ -23,12 +23,14 @@ struct http_request {
     enum http_method method;
     const char path[256];
     const char host[256];
-    struct hashtable headers;
+    char raw_str[4096];
 };
 
 const char * discord_strerror(DiscordCode);
 
 DiscordCode discord_global_init();
+
+DiscordCode discord_run(const char *);
 
 #ifdef __cplusplus
 }
