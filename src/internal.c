@@ -71,6 +71,7 @@ static SocketCode initiate_ssl_protocol(struct socket_context *ctx) {
         log_error(&internal_log, "Failed to configure SSL context.");
         return kSocketSSLContext;
     }
+    log_info(&internal_log, "Successfully configured SSL context.");
 
     ctx->ssl = SSL_new(ctx->ssl_ctx);
 
@@ -78,6 +79,14 @@ static SocketCode initiate_ssl_protocol(struct socket_context *ctx) {
         log_error(&internal_log, "Failed to initiate SSL protocol.");
         return kSocketSSL;
     }
+
+    SSL_set_fd(ctx->ssl, ctx->socket_fd);
+
+    if (SSL_connect(ctx->ssl) != 1) {
+      log_error(&internal_log, "Failed to complete the SSL handshake.");
+      return kSocketSSL;
+    }
+    log_info(&internal_log, "Successfully completed the SSL handshake.");
 
     return kSocketOK;
 }
@@ -94,12 +103,14 @@ SocketCode connect_to_server(
         log_error(&internal_log, "Failed to create server socket.");
         return kSocketFileDescriptor;
     }
+    log_info(&internal_log, "Successfully created server socket.");
 
     int32_t result = 0;
     if ((result = set_session_host(ctx, host))) {
         log_error(&internal_log, "Failed to set host name.");
         return result;
     }
+    log_info(&internal_log, "Successfully set host name.");
 
     ctx->service.sin_family = AF_INET;
     ctx->service.sin_port = htons(strtol(port, NULL, 0));
@@ -116,8 +127,8 @@ SocketCode connect_to_server(
     }
     log_info(&internal_log, "Connected to server '%s:%s'.", host, port);
 
-    if (!use_ssl) {
-        log_debug(&internal_log, "Initiating SSL protocol...");
+    if (use_ssl) {
+        log_info(&internal_log, "Initiating SSL protocol...");
         return initiate_ssl_protocol(ctx);
     }
 
