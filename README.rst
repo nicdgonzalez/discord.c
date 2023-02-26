@@ -15,7 +15,7 @@ with as few dependencies as possible and to cover the entire Discord Library.
 Technologies Used
 ------------------
 
-- `OpenSSL 3.0 <https://github.com/openssl/openssl>`
+- `OpenSSL 3.0 <https://github.com/openssl/openssl>`_
 
 Project Status
 ---------------
