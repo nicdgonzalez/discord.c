@@ -53,7 +53,7 @@ FormatCode format_free(struct format *fmt) {
     return kFormatOK;
 }
 
-FormatCode format_set_argument(struct format *fmt, const char *arg) {
+FormatCode format_add_argument(struct format *fmt, const char *arg) {
     if (!fmt->args_left) {
         return kFormatNoArgsLeft;
     }
@@ -105,6 +105,6 @@ FormatCode format_set_argument(struct format *fmt, const char *arg) {
     return kFormatOK;
 }
 
-const char * format_get_str(struct format *fmt) {
+const char * format_to_str(struct format *fmt) {
     return (const char *) fmt->value;
 }

@@ -38,12 +38,12 @@ FormatCode format_free(struct format *);
 /// @brief Replace the first placeholder symbol with a value.
 /// @param fmt Pointer to a Format struct initialized with format_init().
 /// @param arg The value to swap with the placeholder symbol.
-FormatCode format_set_argument(struct format *, const char *);
+FormatCode format_add_argument(struct format *, const char *);
 
 /// @brief Retrieves the modified string template provided to format_init().
 /// @param fmt Pointer to a Format struct initialized with format_init().
 /// @return const char pointer containing the held string value.
-const char * format_get_str(struct format *fmt);
+const char * format_to_str(struct format *fmt);
 
 #ifdef __cplusplus
 }
