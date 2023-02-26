@@ -53,13 +53,13 @@ static LoggingCode open_logging_file() {
 
     struct format file_name;
     format_init(&file_name, "./logs/{}.{}.log");
-    format_set_argument(&file_name, manager_ctx.library_name);
+    format_add_argument(&file_name, manager_ctx.library_name);
 
     char date_time[16];
     date_time_now((char *) &date_time, sizeof(date_time), "%Y%m%d_%H%M%S");
-    format_set_argument(&file_name, date_time);
+    format_add_argument(&file_name, date_time);
 
-    manager_ctx.fp = fopen(format_get_str(&file_name), "w+");
+    manager_ctx.fp = fopen(format_to_str(&file_name), "w+");
     format_free(&file_name);
     return kLoggingOK;
 }
@@ -73,7 +73,7 @@ static void logging_message_init(
     struct format fmt;
     // logger_name LEVEL @ YYYY-MM-DD HH:MM:SS]: content
     format_init(&fmt, "{} @ {} [{}]: {}\n");
-    format_set_argument(&fmt, logger->name);
+    format_add_argument(&fmt, logger->name);
 
     char date_time[] = "YYYY-MM-DD HH:MM:SS";
     date_time_now(
@@ -81,16 +81,16 @@ static void logging_message_init(
         sizeof(date_time),
         (const char *) manager_ctx.date_time_fmt
     );
-    format_set_argument(&fmt, (const char *) &date_time);
+    format_add_argument(&fmt, (const char *) &date_time);
 
     char level_to_str[5][6] = {"DEBUG", "INFO", "WARN", "ERROR", "FATAL"};
-    format_set_argument(&fmt, (const char *) &level_to_str[level]);
+    format_add_argument(&fmt, (const char *) &level_to_str[level]);
 
-    format_set_argument(&fmt, content);
+    format_add_argument(&fmt, content);
 
     message->info.level = level;
     message->content = (char *) calloc(fmt.length, sizeof(char));
-    strcpy(message->content, format_get_str(&fmt));
+    strcpy(message->content, format_to_str(&fmt));
     format_free(&fmt);
     return;
 }
@@ -103,6 +103,7 @@ static LoggingCode logging_message_free(struct logging_message *message) {
 static LoggingCode logging_write_message(struct logging_message *message) {
     if (message->info.level >= manager_ctx.level) {
         vfprintf(manager_ctx.fp, message->content, message->info.args);
+        fflush(manager_ctx.fp);
     }
     logging_message_free(message);
     return kLoggingOK;
